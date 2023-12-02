@@ -2,15 +2,18 @@ use crate::{Runner, Selector};
 
 mod day_01;
 mod day_02;
+mod day_03;
 
 use day_01::*;
 use day_02::*;
+use day_03::*;
 
 pub fn run_2023(which: Selector) {
     let mut day01 = Day01::new();
     let mut day02 = Day02::new();
+    let mut day03 = Day03::new();
 
-    let mut days: Vec<&mut dyn Runner> = vec![&mut day01, &mut day02];
+    let mut days: Vec<&mut dyn Runner> = vec![&mut day01, &mut day02, &mut day03];
 
     match which {
         Selector::Last => {
