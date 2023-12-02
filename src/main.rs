@@ -35,7 +35,7 @@ fn solution(input: &str) -> u32 {
                             (name, count)
                         })
                         .filter(|(name, count)| match limit.get(name.as_str()) {
-                            Some(&limit_count) => *count >= limit_count,
+                            Some(&limit_count) => *count > limit_count,
                             None => false,
                         })
                         .collect();
@@ -44,6 +44,7 @@ fn solution(input: &str) -> u32 {
                 .filter(|set| !set.is_empty())
                 .collect();
 
+            println!("{:#?}", sets);
             if sets.len() <= 0 {
                 Some(game_number)
             } else {
