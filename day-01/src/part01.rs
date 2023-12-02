@@ -1,7 +1,7 @@
 use std::fs;
 
 pub fn part_01() {
-    let input = fs::read_to_string("src/part-01.txt").unwrap();
+    let input = fs::read_to_string("day-01/src/part-01.txt").unwrap();
 
     let output = solution(&input);
     println!("Part 01: {}", output)

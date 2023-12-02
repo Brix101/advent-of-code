@@ -1,11 +1,11 @@
 use std::{collections::HashMap, fs};
 
-fn main() {
-    let input = fs::read_to_string("src/part-01.txt").unwrap();
+pub fn part01() {
+    let input = fs::read_to_string("day-02/src/part-01.txt").unwrap();
 
     let output = solution(&input);
 
-    println!("{:#?}", output);
+    println!("Part 01: {:#?}", output);
 }
 
 fn solution(input: &str) -> u32 {
@@ -44,7 +44,6 @@ fn solution(input: &str) -> u32 {
                 .filter(|set| !set.is_empty())
                 .collect();
 
-            println!("{:#?}", sets);
             if sets.len() <= 0 {
                 Some(game_number)
             } else {

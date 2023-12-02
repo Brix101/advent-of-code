@@ -1,11 +1,11 @@
 use std::{collections::HashMap, fs};
 
-fn main() {
-    let input = fs::read_to_string("src/part-01.txt").unwrap();
+pub fn part02() {
+    let input = fs::read_to_string("day-02/src/part-01.txt").unwrap();
 
     let output = solution(&input);
 
-    println!("{:#?}", output);
+    println!("Part 02: {:#?}", output);
 }
 
 fn solution(input: &str) -> u32 {
