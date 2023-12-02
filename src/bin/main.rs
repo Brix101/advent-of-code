@@ -44,9 +44,9 @@ fn main() {
             std::process::exit(1);
         };
 
-        if !(2015..=2022).contains(&year) {
+        if !(2015..=2023).contains(&year) {
             // if year < 2015 || year > 2022 {
-            eprintln!("Year must be in range 2015..2022");
+            eprintln!("Year must be in range 2015..2023");
             std::process::exit(1);
         }
 

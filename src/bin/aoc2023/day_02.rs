@@ -1,10 +1,10 @@
-use std::{collections::HashMap, fs};
+use std::collections::HashMap;
 
 use crate::Runner;
 
 #[derive(Default)]
 pub struct Day02 {
-    input: String,
+    records: Vec<String>,
 }
 
 impl Day02 {
@@ -14,8 +14,8 @@ impl Day02 {
 
     pub fn solution01(&self) -> u32 {
         let limit = HashMap::from([("red", 12), ("green", 13), ("blue", 14)]);
-        self.input
-            .lines()
+        self.records
+            .iter()
             .filter_map(|line| {
                 let parts: Vec<&str> = line.split(':').collect();
                 let game_number = parts[0]
@@ -57,8 +57,8 @@ impl Day02 {
     }
 
     pub fn solution02(&self) -> u32 {
-        self.input
-            .lines()
+        self.records
+            .iter()
             .map(|line| {
                 let parts: Vec<&str> = line.split(':').collect();
                 let mut colors: HashMap<String, u32> = HashMap::new();
@@ -93,7 +93,7 @@ impl Runner for Day02 {
     }
 
     fn parse(&mut self) {
-        self.input = fs::read_to_string("input/2023-02-01.txt").unwrap();
+        self.records = aoclib::read_lines("input/2023-02-01.txt");
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -119,7 +119,7 @@ Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
         let mut day = Day02::new();
-        day.input = input.to_string();
+        day.records = aoclib::read_string(input);
 
         day
     }

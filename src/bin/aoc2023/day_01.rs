@@ -1,11 +1,9 @@
-use std::fs;
-
 use crate::Runner;
 
 #[derive(Default)]
 pub struct Day01 {
-    input01: String,
-    input02: String,
+    records01: Vec<String>,
+    records02: Vec<String>,
 }
 
 impl Day01 {
@@ -14,8 +12,8 @@ impl Day01 {
     }
 
     pub fn solution01(&self) -> u32 {
-        self.input01
-            .lines()
+        self.records01
+            .iter()
             .map(|line| {
                 let mut it = line.chars().filter_map(|ch| ch.to_digit(10));
                 let first = it.next().expect("should be a number");
@@ -31,8 +29,8 @@ impl Day01 {
     }
 
     pub fn solution02(&self) -> u32 {
-        self.input02
-            .lines()
+        self.records02
+            .iter()
             .map(|line| {
                 let mut it = (0..line.len()).filter_map(|index| {
                     let reduced_line = &line[index..];
@@ -71,8 +69,8 @@ impl Runner for Day01 {
     }
 
     fn parse(&mut self) {
-        self.input01 = fs::read_to_string("input/2023-01-01.txt").unwrap();
-        self.input02 = fs::read_to_string("input/2023-01-02.txt").unwrap();
+        self.records01 = aoclib::read_lines("input/2023-01-01.txt");
+        self.records02 = aoclib::read_lines("input/2023-01-02.txt");
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -104,9 +102,8 @@ mod tests {
                     7pqrstsixteen";
 
         let mut day = Day01::new();
-        day.input01 = input01.to_string();
-
-        day.input02 = input02.to_string();
+        day.records01 = aoclib::read_string(input01);
+        day.records02 = aoclib::read_string(input02);
 
         day
     }
