@@ -8,11 +8,11 @@ pub fn part_02() {
 }
 
 fn solution(input: &str) -> u32 {
-    let output = input
+    input
         .lines()
         .map(|line| {
-            let mut it = (0..line.len()).filter_map(|idx| {
-                let reduced_line = &line[idx..];
+            let mut it = (0..line.len()).filter_map(|index| {
+                let reduced_line = &line[index..];
                 let result = match reduced_line {
                     s if s.starts_with("one") => '1',
                     s if s.starts_with("two") => '2',
@@ -38,9 +38,7 @@ fn solution(input: &str) -> u32 {
             .parse::<u32>()
             .expect("should be a valid number")
         })
-        .sum::<u32>();
-
-    output
+        .sum::<u32>()
 }
 
 #[cfg(test)]

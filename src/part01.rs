@@ -8,7 +8,7 @@ pub fn part_01() {
 }
 
 fn solution(input: &str) -> u32 {
-    let output = input
+    input
         .lines()
         .map(|line| {
             let mut it = line.chars().filter_map(|ch| ch.to_digit(10));
@@ -21,9 +21,7 @@ fn solution(input: &str) -> u32 {
             .parse::<u32>()
             .expect("should be a valid number")
         })
-        .sum::<u32>();
-
-    output
+        .sum::<u32>()
 }
 
 #[cfg(test)]
