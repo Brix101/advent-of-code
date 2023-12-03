@@ -10,6 +10,6 @@ pub fn read_lines<T: AsRef<Path>>(pathname: T) -> Vec<String> {
         .collect()
 }
 
-pub fn read_string(input: &str) -> Vec<String> {
+pub fn read_str(input: &str) -> Vec<String> {
     input.lines().map(String::from).collect()
 }

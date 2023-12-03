@@ -13,19 +13,19 @@ impl Day02 {
     }
 
     pub fn solution01(&self) -> u32 {
-        let limit = HashMap::from([("red", 12), ("green", 13), ("blue", 14)]);
+        let set_limit = HashMap::from([("red", 12), ("green", 13), ("blue", 14)]);
         self.records
             .iter()
             .filter_map(|line| {
                 let parts: Vec<&str> = line.split(':').collect();
                 let game_number = parts[0]
                     .strip_prefix("Game")
-                    .unwrap_or(parts[0])
+                    .unwrap_or("0")
                     .trim()
                     .parse::<u32>()
                     .expect("should be a valid number");
 
-                let sets: Vec<_> = parts[1]
+                let impossible_sets: Vec<_> = parts[1]
                     .split(";")
                     .map(|set| {
                         let colors: HashMap<String, u32> = set
@@ -37,7 +37,7 @@ impl Day02 {
                                 let name = color_parts[1].to_string();
                                 (name, count)
                             })
-                            .filter(|(name, count)| match limit.get(name.as_str()) {
+                            .filter(|(name, count)| match set_limit.get(name.as_str()) {
                                 Some(&limit_count) => *count > limit_count,
                                 None => false,
                             })
@@ -47,7 +47,7 @@ impl Day02 {
                     .filter(|set| !set.is_empty())
                     .collect();
 
-                if sets.len() <= 0 {
+                if impossible_sets.len() <= 0 {
                     Some(game_number)
                 } else {
                     None
@@ -119,7 +119,7 @@ Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
         let mut day = Day02::new();
-        day.records = aoclib::read_string(input);
+        day.records = aoclib::read_str(input);
 
         day
     }

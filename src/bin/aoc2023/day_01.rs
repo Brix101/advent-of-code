@@ -102,8 +102,8 @@ mod tests {
                     7pqrstsixteen";
 
         let mut day = Day01::new();
-        day.records01 = aoclib::read_string(input01);
-        day.records02 = aoclib::read_string(input02);
+        day.records01 = aoclib::read_str(input01);
+        day.records02 = aoclib::read_str(input02);
 
         day
     }
