@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::Runner;
 
 #[derive(Default)]
@@ -13,77 +11,160 @@ impl Day03 {
     }
 
     pub fn solution01(&self) -> u32 {
-        let limit = HashMap::from([("red", 12), ("green", 13), ("blue", 14)]);
         self.records
             .iter()
-            .filter_map(|line| {
-                let parts: Vec<&str> = line.split(':').collect();
-                let game_number = parts[0]
-                    .strip_prefix("Game")
-                    .unwrap_or(parts[0])
-                    .trim()
-                    .parse::<u32>()
-                    .expect("should be a valid number");
+            .enumerate()
+            .filter_map(|(index, curr_line)| {
+                if curr_line.chars().any(|ch| ch.is_digit(10)) {
+                    let (prev_line, next_line) = self.get_prev_next_line(&index);
 
-                let sets: Vec<_> = parts[1]
-                    .split(";")
-                    .map(|set| {
-                        let colors: HashMap<String, u32> = set
-                            .split(',')
-                            .map(|part_line| {
-                                let color_parts: Vec<&str> =
-                                    part_line.trim().split_whitespace().collect();
-                                let count = color_parts[0].parse().unwrap_or(0);
-                                let name = color_parts[1].to_string();
-                                (name, count)
-                            })
-                            .filter(|(name, count)| match limit.get(name.as_str()) {
-                                Some(&limit_count) => *count > limit_count,
-                                None => false,
-                            })
-                            .collect();
-                        colors
-                    })
-                    .filter(|set| !set.is_empty())
-                    .collect();
+                    let digit_positions: Vec<_> = curr_line
+                        .chars()
+                        .enumerate()
+                        .filter(|&(_, c)| c.is_digit(10))
+                        .map(|(index, _)| index)
+                        .collect();
 
-                if sets.len() <= 0 {
-                    Some(game_number)
+                    let found_positions: Vec<_> = digit_positions
+                        .iter()
+                        .filter(|&&pos| {
+                            self.check_position(&prev_line, pos)
+                                || self.check_position(&curr_line, pos)
+                                || self.check_position(&next_line, pos)
+                        })
+                        .cloned()
+                        .collect();
+
+                    let filtered_positions = self.remove_sequence_position(found_positions);
+
+                    let founds: Vec<_> = filtered_positions
+                        .iter()
+                        .map(|&index| self.get_number_around_index(curr_line, index))
+                        .collect();
+
+                    Some(founds)
                 } else {
                     None
                 }
             })
-            .sum::<u32>()
+            .flatten()
+            .map(|s| s.parse::<u32>().unwrap_or(0))
+            .sum()
     }
 
     pub fn solution02(&self) -> u32 {
         self.records
             .iter()
-            .map(|line| {
-                let parts: Vec<&str> = line.split(':').collect();
-                let mut colors: HashMap<String, u32> = HashMap::new();
+            .enumerate()
+            .filter_map(|(index, curr_line)| {
+                if curr_line.contains('*') {
+                    let (prev_line, next_line) = self.get_prev_next_line(&index);
 
-                parts[1].split(";").for_each(|set| {
-                    set.split(',').for_each(|part_line| {
-                        let color_parts: Vec<&str> = part_line.trim().split_whitespace().collect();
-                        let count = color_parts[0].parse().unwrap_or(0);
-                        let name = color_parts[1].to_string();
-                        if let Some(existing_count) = colors.get_mut(&name) {
-                            // If it exists and the new count is bigger, update the count
-                            if count > *existing_count {
-                                *existing_count = count;
-                            }
-                        } else {
-                            colors.insert(name, count);
-                        }
-                    });
-                });
+                    println!("prev: {}", prev_line);
+                    println!("curr: {}", curr_line);
+                    println!("next: {}", next_line);
 
-                let result = colors.values().fold(1, |acc, count| acc * count);
-
-                result
+                    Some(vec!["0"])
+                } else {
+                    None
+                }
             })
-            .sum::<u32>()
+            .flatten()
+            .map(|s| s.parse::<u32>().unwrap_or(0))
+            .sum()
+    }
+
+    fn check_position(&self, line: &str, pos: usize) -> bool {
+        let result1 = line
+            .chars()
+            .nth(pos.wrapping_sub(1))
+            .map_or(false, |c| c != '.' && !c.is_digit(10));
+        let result2 = line
+            .chars()
+            .nth(pos)
+            .map_or(false, |c| c != '.' && !c.is_digit(10));
+        let result3 = line
+            .chars()
+            .nth(pos + 1)
+            .map_or(false, |c| c != '.' && !c.is_digit(10));
+
+        result1 || result2 || result3
+    }
+
+    fn get_number_around_index(&self, line: &str, index: usize) -> String {
+        let mut result = String::new();
+
+        // Collect digits to the left of the index
+        let mut left_index = index;
+        while let Some(ch) = line.chars().nth(left_index) {
+            if ch.is_digit(10) {
+                result.insert(0, ch);
+                left_index = left_index.wrapping_sub(1);
+            } else {
+                break;
+            }
+        }
+
+        // Collect digits to the right of the index
+        let mut right_index = index + 1;
+        while let Some(ch) = line.chars().nth(right_index) {
+            if ch.is_digit(10) {
+                result.push(ch);
+                right_index += 1;
+            } else {
+                break;
+            }
+        }
+
+        result
+    }
+
+    fn remove_sequence_position(&self, numbers: Vec<usize>) -> Vec<usize> {
+        let mut result = Vec::new();
+
+        let mut current_sequence = Vec::new();
+        let mut current_max = 0;
+
+        for &num in numbers.iter() {
+            if let Some(&prev_number) = current_sequence.last() {
+                if num == prev_number + 1 {
+                    // Continue the sequence
+                    current_sequence.push(num);
+
+                    // Update the current_max if num is greater
+                    current_max = current_max.max(num);
+                } else {
+                    // End of the sequence, add the current_max to the result
+                    result.push(current_max);
+
+                    // Reset current_max and start a new sequence
+                    current_max = num;
+                    current_sequence = vec![num];
+                }
+            } else {
+                // Start the first sequence
+                current_max = num;
+                current_sequence.push(num);
+            }
+        }
+
+        // If the last sequence is complete, add the current_max to the result
+        result.push(current_max);
+
+        result
+    }
+
+    fn get_prev_next_line(&self, index: &usize) -> (&str, &str) {
+        let records = &self.records;
+
+        let prev_line: &str = records
+            .get(index.wrapping_sub(1))
+            .map_or("..........", |prev_line_value| prev_line_value.as_str());
+        let next_line: &str = records
+            .get(*index + 1)
+            .map_or("..........", |next_line_value| next_line_value.as_str());
+
+        (prev_line, next_line)
     }
 }
 
@@ -93,7 +174,18 @@ impl Runner for Day03 {
     }
 
     fn parse(&mut self) {
-        self.records = aoclib::read_lines("input/2023-02-01.txt");
+        let input = "467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..";
+        self.records = aoclib::read_str(input);
+        // self.records = aoclib::read_lines("input/2023-03-01.txt");
     }
 
     fn part1(&mut self) -> Vec<String> {
@@ -112,14 +204,19 @@ mod tests {
     use super::*;
 
     fn day() -> Day03 {
-        let input = "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
+        let input = "467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..";
 
         let mut day = Day03::new();
-        day.records = aoclib::read_string(input);
+        day.records = aoclib::read_str(input);
 
         day
     }
@@ -128,13 +225,13 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
     fn test_solution01() {
         let output = day().solution01();
 
-        assert_eq!(8, output);
+        assert_eq!(4361, output);
     }
 
     #[test]
     fn test_solution02() {
         let output = day().solution02();
 
-        assert_eq!(2286, output);
+        assert_eq!(467835, output);
     }
 }
