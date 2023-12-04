@@ -1,8 +1,18 @@
+use itertools::Itertools;
+use std::collections::BTreeMap;
+
 use crate::Runner;
 
 #[derive(Default)]
 pub struct Day03 {
     records: Vec<String>,
+}
+
+#[derive(Debug)]
+enum Value {
+    Symbol(char),
+    Empty,
+    Number(u32),
 }
 
 impl Day03 {
@@ -35,9 +45,9 @@ impl Day03 {
                         .cloned()
                         .collect();
 
-                    let unique_locations = self.remove_sequence_position(possible_locations);
+                    let unique_positions = self.remove_sequence_position(possible_locations);
 
-                    let founds: Vec<_> = unique_locations
+                    let founds: Vec<_> = unique_positions
                         .iter()
                         .map(|&index| self.get_number_around_index(curr_line, index))
                         .collect();
@@ -53,115 +63,110 @@ impl Day03 {
     }
 
     pub fn solution02(&self) -> u32 {
-        self.records
+        let map = self
+            .records
             .iter()
             .enumerate()
-            .filter_map(|(index, curr_line)| {
-                if curr_line.contains('*') {
-                    let (prev_line, next_line) = self.get_prev_next_line(&index);
-                    let locations = curr_line
-                        .chars()
-                        .enumerate()
-                        .filter(|&(_, c)| c == '*')
-                        .map(|(index, _)| index)
-                        .collect::<Vec<_>>();
-
-                    println!("+++++++++++++++++++++++++++");
-                    println!("prev: {}", prev_line);
-                    println!("curr: {}", curr_line);
-                    println!("next: {}", next_line);
-
-                    println!("pos  :{:?}", locations);
-                    let totals = locations
-                        .iter()
-                        .map(|&pos| {
-                            let prev_left = prev_line
-                                .chars()
-                                .nth(pos.wrapping_sub(1))
-                                .map_or(false, |c| c.is_digit(10));
-                            let prev_center =
-                                prev_line.chars().nth(pos).map_or(false, |c| c.is_digit(10));
-                            let prev_right = prev_line
-                                .chars()
-                                .nth(pos + 1)
-                                .map_or(false, |c| c.is_digit(10));
-
-                            let curr_left = curr_line
-                                .chars()
-                                .nth(pos.wrapping_sub(1))
-                                .map_or(false, |c| c.is_digit(10));
-                            let curr_right = curr_line
-                                .chars()
-                                .nth(pos + 1)
-                                .map_or(false, |c| c.is_digit(10));
-
-                            let next_left = next_line
-                                .chars()
-                                .nth(pos.wrapping_sub(1))
-                                .map_or(false, |c| c.is_digit(10));
-                            let next_center =
-                                next_line.chars().nth(pos).map_or(false, |c| c.is_digit(10));
-                            let next_right = next_line
-                                .chars()
-                                .nth(pos + 1)
-                                .map_or(false, |c| c.is_digit(10));
-
-                            let left = if curr_left {
-                                self.get_number_around_index(curr_line, index - 1)
-                                    .parse::<u32>()
-                                    .unwrap_or(0)
-                            } else if prev_left || (prev_left || prev_center) {
-                                self.get_number_around_index(prev_line, index - 1)
-                                    .parse::<u32>()
-                                    .unwrap_or(0)
-                            } else if next_left || (next_left || next_center) {
-                                self.get_number_around_index(next_line, index - 1)
-                                    .parse::<u32>()
-                                    .unwrap_or(0)
-                            } else if !prev_left || (prev_right || prev_center) {
-                                self.get_number_around_index(prev_line, index + 1)
-                                    .parse::<u32>()
-                                    .unwrap_or(0)
-                            } else {
-                                0
-                            };
-
-                            let right = if curr_right {
-                                self.get_number_around_index(curr_line, index + 1)
-                                    .parse::<u32>()
-                                    .unwrap_or(0)
-                            } else if prev_right || (prev_right || prev_center) {
-                                self.get_number_around_index(prev_line, index + 1)
-                                    .parse::<u32>()
-                                    .unwrap_or(0)
-                            } else if next_right || (next_right || next_center) {
-                                self.get_number_around_index(next_line, index + 1)
-                                    .parse::<u32>()
-                                    .unwrap_or(0)
-                            } else if !next_left || (next_right || next_center) {
-                                self.get_number_around_index(next_line, index + 1)
-                                    .parse::<u32>()
-                                    .unwrap_or(0)
-                            } else {
-                                0
-                            };
-
-                            println!("{},{},{}", prev_left, prev_center, prev_right);
-                            println!("{},     ,{}", curr_left, curr_right);
-                            println!("{},{},{}", next_left, next_center, next_right);
-                            println!("{} * {}", left, right);
-
-                            left * right
-                        })
-                        .collect::<Vec<_>>();
-                    println!("result  :{:?}", totals);
-                    Some(totals)
-                } else {
-                    None
-                }
+            .flat_map(|(y, line)| {
+                line.chars().enumerate().map(move |(x, character)| {
+                    (
+                        (y as i32, x as i32),
+                        match character {
+                            '.' => Value::Empty,
+                            c if c.is_ascii_digit() => {
+                                Value::Number(c.to_digit(10).expect("should be a number"))
+                            }
+                            c => Value::Symbol(c),
+                        },
+                    )
+                })
             })
-            .flatten()
-            .sum()
+            .collect::<BTreeMap<(i32, i32), Value>>();
+
+        let mut numbers: Vec<Vec<((i32, i32), u32)>> = vec![];
+        for ((y, x), value) in map.iter() {
+            if let Value::Number(num) = value {
+                match numbers.iter().last() {
+                    Some(v) => {
+                        let last_num = v.iter().last();
+                        match last_num {
+                            Some(((last_num_x, _), _)) => {
+                                if last_num_x + 1 == *x {
+                                    let last = numbers.iter_mut().last().expect("should exist");
+                                    last.push(((*x, *y), *num));
+                                } else {
+                                    numbers.push(vec![((*x, *y), *num)]);
+                                }
+                            }
+                            None => unimplemented!("shouldn't happen"),
+                        }
+                    }
+                    None => {
+                        numbers.push(vec![((*x, *y), *num)]);
+                    }
+                }
+            }
+        }
+
+        // map: entire grid
+        // numbers: sequential numbers
+        let mut total = 0;
+        for symbol in map
+            .iter()
+            .filter(|(_, value)| matches!(value, Value::Symbol('*')))
+        {
+            // (x,y)
+            let positions = [
+                (1, 0),
+                (1, -1),
+                (0, -1),
+                (-1, -1),
+                (-1, 0),
+                (-1, 1),
+                (0, 1),
+                (1, 1),
+            ];
+            let pos_to_check: Vec<(i32, i32)> = positions
+                .iter()
+                .map(|outer_pos| {
+                    // outer_pos.x + pos.x, .y + .y
+                    (outer_pos.0 + symbol.0 .1, outer_pos.1 + symbol.0 .0)
+                })
+                .collect();
+
+            // dbg!(pos_to_check.len(), pos_to_check);
+            let mut indexes_of_numbers = vec![];
+
+            for pos in pos_to_check {
+                for (i, num_list) in numbers.iter().enumerate() {
+                    if num_list
+                        .iter()
+                        .find(|(num_pos, _)| num_pos == &pos)
+                        .is_some()
+                    {
+                        indexes_of_numbers.push(i);
+                    }
+                }
+            }
+
+            let is_gear = indexes_of_numbers.iter().unique().count() == 2;
+
+            if is_gear {
+                total += indexes_of_numbers
+                    .iter()
+                    .unique()
+                    .map(|index| {
+                        numbers[*index]
+                            .iter()
+                            .map(|(_, num)| num.to_string())
+                            .collect::<String>()
+                            .parse::<usize>()
+                            .unwrap()
+                    })
+                    .product::<usize>();
+            }
+        }
+        total.to_string().parse::<u32>().unwrap_or(0)
     }
 
     fn check_position(&self, line: &str, pos: usize) -> bool {
@@ -264,18 +269,18 @@ impl Runner for Day03 {
     }
 
     fn parse(&mut self) {
-        let input = "467..114..
-...*......
-..35..633.
-......#...
-617*......
-.....+.58.
-..592.....
-......755.
-...$.*....
-.664.598..";
-        self.records = aoclib::read_str(input);
-        // self.records = aoclib::read_lines("input/2023-03-01.txt");
+        //         let input = "467..114..
+        // ...*......
+        // ..35..633.
+        // ......#...
+        // 617*......
+        // .....+.58.
+        // ..592.....
+        // ......755.
+        // ...$.*....
+        // .664.598..";
+        //         self.records = aoclib::read_str(input);
+        self.records = aoclib::read_lines("input/2023-03-01.txt");
     }
 
     fn part1(&mut self) -> Vec<String> {
