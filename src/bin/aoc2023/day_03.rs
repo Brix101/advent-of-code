@@ -18,14 +18,14 @@ impl Day03 {
                 if curr_line.chars().any(|ch| ch.is_digit(10)) {
                     let (prev_line, next_line) = self.get_prev_next_line(&index);
 
-                    let digit_positions: Vec<_> = curr_line
+                    let locations: Vec<_> = curr_line
                         .chars()
                         .enumerate()
                         .filter(|&(_, c)| c.is_digit(10))
                         .map(|(index, _)| index)
                         .collect();
 
-                    let found_positions: Vec<_> = digit_positions
+                    let possible_locations: Vec<_> = locations
                         .iter()
                         .filter(|&&pos| {
                             self.check_position(&prev_line, pos)
@@ -35,9 +35,9 @@ impl Day03 {
                         .cloned()
                         .collect();
 
-                    let filtered_positions = self.remove_sequence_position(found_positions);
+                    let unique_locations = self.remove_sequence_position(possible_locations);
 
-                    let founds: Vec<_> = filtered_positions
+                    let founds: Vec<_> = unique_locations
                         .iter()
                         .map(|&index| self.get_number_around_index(curr_line, index))
                         .collect();
@@ -59,18 +59,108 @@ impl Day03 {
             .filter_map(|(index, curr_line)| {
                 if curr_line.contains('*') {
                     let (prev_line, next_line) = self.get_prev_next_line(&index);
+                    let locations = curr_line
+                        .chars()
+                        .enumerate()
+                        .filter(|&(_, c)| c == '*')
+                        .map(|(index, _)| index)
+                        .collect::<Vec<_>>();
 
+                    println!("+++++++++++++++++++++++++++");
                     println!("prev: {}", prev_line);
                     println!("curr: {}", curr_line);
                     println!("next: {}", next_line);
 
-                    Some(vec!["0"])
+                    println!("pos  :{:?}", locations);
+                    let totals = locations
+                        .iter()
+                        .map(|&pos| {
+                            let prev_left = prev_line
+                                .chars()
+                                .nth(pos.wrapping_sub(1))
+                                .map_or(false, |c| c.is_digit(10));
+                            let prev_center =
+                                prev_line.chars().nth(pos).map_or(false, |c| c.is_digit(10));
+                            let prev_right = prev_line
+                                .chars()
+                                .nth(pos + 1)
+                                .map_or(false, |c| c.is_digit(10));
+
+                            let curr_left = curr_line
+                                .chars()
+                                .nth(pos.wrapping_sub(1))
+                                .map_or(false, |c| c.is_digit(10));
+                            let curr_right = curr_line
+                                .chars()
+                                .nth(pos + 1)
+                                .map_or(false, |c| c.is_digit(10));
+
+                            let next_left = next_line
+                                .chars()
+                                .nth(pos.wrapping_sub(1))
+                                .map_or(false, |c| c.is_digit(10));
+                            let next_center =
+                                next_line.chars().nth(pos).map_or(false, |c| c.is_digit(10));
+                            let next_right = next_line
+                                .chars()
+                                .nth(pos + 1)
+                                .map_or(false, |c| c.is_digit(10));
+
+                            let left = if curr_left {
+                                self.get_number_around_index(curr_line, index - 1)
+                                    .parse::<u32>()
+                                    .unwrap_or(0)
+                            } else if prev_left || (prev_left || prev_center) {
+                                self.get_number_around_index(prev_line, index - 1)
+                                    .parse::<u32>()
+                                    .unwrap_or(0)
+                            } else if next_left || (next_left || next_center) {
+                                self.get_number_around_index(next_line, index - 1)
+                                    .parse::<u32>()
+                                    .unwrap_or(0)
+                            } else if !prev_left || (prev_right || prev_center) {
+                                self.get_number_around_index(prev_line, index + 1)
+                                    .parse::<u32>()
+                                    .unwrap_or(0)
+                            } else {
+                                0
+                            };
+
+                            let right = if curr_right {
+                                self.get_number_around_index(curr_line, index + 1)
+                                    .parse::<u32>()
+                                    .unwrap_or(0)
+                            } else if prev_right || (prev_right || prev_center) {
+                                self.get_number_around_index(prev_line, index + 1)
+                                    .parse::<u32>()
+                                    .unwrap_or(0)
+                            } else if next_right || (next_right || next_center) {
+                                self.get_number_around_index(next_line, index + 1)
+                                    .parse::<u32>()
+                                    .unwrap_or(0)
+                            } else if !next_left || (next_right || next_center) {
+                                self.get_number_around_index(next_line, index + 1)
+                                    .parse::<u32>()
+                                    .unwrap_or(0)
+                            } else {
+                                0
+                            };
+
+                            println!("{},{},{}", prev_left, prev_center, prev_right);
+                            println!("{},     ,{}", curr_left, curr_right);
+                            println!("{},{},{}", next_left, next_center, next_right);
+                            println!("{} * {}", left, right);
+
+                            left * right
+                        })
+                        .collect::<Vec<_>>();
+                    println!("result  :{:?}", totals);
+                    Some(totals)
                 } else {
                     None
                 }
             })
             .flatten()
-            .map(|s| s.parse::<u32>().unwrap_or(0))
             .sum()
     }
 
