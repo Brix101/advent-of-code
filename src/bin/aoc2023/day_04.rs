@@ -21,13 +21,11 @@ impl Day04 {
                     .filter(|&&num| owned.contains(&num))
                     .collect();
 
-                let points: u32 = if matches.len() > 0 {
+                if matches.len() > 0 {
                     1 << (matches.len() - 1)
                 } else {
                     0
-                };
-
-                points
+                }
             })
             .sum::<u32>()
     }
@@ -49,7 +47,7 @@ impl Day04 {
 
         for (index, card) in cards.clone().iter().enumerate() {
             let binding = cards.clone();
-            let active_card = binding.get(index).unwrap();
+            let active_card = binding.get(index).unwrap_or(card);
 
             for next_index in index..(index + card.0) {
                 let next_card = cards.get_mut(next_index + 1).unwrap();
@@ -57,9 +55,7 @@ impl Day04 {
             }
         }
 
-        let total = cards.iter().map(|(_, total)| total).sum::<u32>();
-
-        total
+        cards.iter().map(|(_, instances)| instances).sum::<u32>()
     }
 
     fn get_numbers(&self, line: &str) -> (Vec<u32>, Vec<u32>) {
