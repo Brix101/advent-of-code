@@ -125,14 +125,14 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
     }
 
     #[test]
-    fn test_solution01() {
+    fn test_part01() {
         let output = day().solution01();
 
         assert_eq!(8, output);
     }
 
     #[test]
-    fn test_solution02() {
+    fn test_part02() {
         let output = day().solution02();
 
         assert_eq!(2286, output);

@@ -109,14 +109,14 @@ mod tests {
     }
 
     #[test]
-    fn test_solution01() {
+    fn test_part01() {
         let output = day().solution01();
 
         assert_eq!(142, output);
     }
 
     #[test]
-    fn test_solution02() {
+    fn test_part02() {
         let output = day().solution02();
 
         assert_eq!(281, output);
