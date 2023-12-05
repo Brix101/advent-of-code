@@ -62,18 +62,25 @@ impl Day05 {
             })
             .collect::<Vec<_>>();
 
-        let result: Vec<usize> = seeds
-            .iter()
-            .map(|seed| {
-                let mut item = *seed;
-                for mapping in &mappings {
-                    item = find_corresponding_item(item, mapping);
-                }
-                item
-            })
-            .collect();
+        let mut lowest = usize::MAX;
 
-        result.iter().cloned().min().unwrap_or(0) as u32
+        seeds.iter().for_each(|&seed| {
+            let mut item = seed;
+
+            mappings.iter().for_each(|mapping| {
+                item = find_corresponding_item(item, mapping);
+            });
+
+            if item < lowest {
+                lowest = item;
+            }
+        });
+
+        if lowest == usize::MAX {
+            0
+        } else {
+            lowest as u32
+        }
     }
 
     pub fn solution02(&self) -> u32 {
@@ -109,18 +116,25 @@ impl Day05 {
             })
             .collect::<Vec<_>>();
 
-        let result: Vec<usize> = parsed_seeds
-            .iter()
-            .map(|seed| {
-                let mut item = *seed;
-                for mapping in &mappings {
-                    item = find_corresponding_item(item, mapping);
-                }
-                item
-            })
-            .collect();
+        let mut lowest = usize::MAX;
 
-        result.iter().cloned().min().unwrap_or(0) as u32
+        parsed_seeds.iter().for_each(|&seed| {
+            let mut item = seed;
+
+            mappings.iter().for_each(|mapping| {
+                item = find_corresponding_item(item, mapping);
+            });
+
+            if item < lowest {
+                lowest = item;
+            }
+        });
+
+        if lowest == usize::MAX {
+            0
+        } else {
+            lowest as u32
+        }
     }
 
     fn mapper(&self, destination: usize, start: usize, length: usize) -> Mapping {
