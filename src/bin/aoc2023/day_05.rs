@@ -16,8 +16,8 @@ impl Mapping {
 
 fn find_corresponding_item(item: usize, mappings: &[Mapping]) -> usize {
     mappings
-        .par_iter()
-        .find_first(|mapping| mapping.source.contains(&item))
+        .iter()
+        .find(|mapping| mapping.source.contains(&item))
         .map_or(item, |mapping| mapping.get_corresponds(item))
 }
 
@@ -45,37 +45,9 @@ impl Day05 {
             .filter_map(|s| s.parse::<usize>().ok())
             .collect::<Vec<_>>();
 
-        let mappings = maps[1..]
-            .iter()
-            .map(|line| {
-                line.split("\n")
-                    .filter(|s| !s.is_empty())
-                    .collect::<Vec<_>>()
-                    .iter()
-                    .map(|line| {
-                        let values: Vec<usize> = line
-                            .split_whitespace()
-                            .filter_map(|s| s.parse().ok())
-                            .collect();
-                        self.mapper(values[0], values[1], values[2])
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .collect::<Vec<_>>();
+        let lowest = self.get_lowest(maps, seeds);
 
-        let final_lowest = seeds
-            .par_iter()
-            .map(|&seed| {
-                let mut item = seed;
-
-                for mapping in mappings.iter() {
-                    item = find_corresponding_item(item, mapping);
-                }
-
-                item
-            })
-            .reduce(|| std::usize::MAX, |a, b| if a < b { a } else { b });
-        final_lowest as u32
+        lowest
     }
 
     pub fn solution02(&self) -> u32 {
@@ -92,6 +64,32 @@ impl Day05 {
             .filter_map(|s| s.parse::<usize>().ok())
             .collect::<Vec<_>>();
 
+        let parsed_seeds = self.parse_seed_ranges(&seeds);
+
+        let lowest = self.get_lowest(maps, parsed_seeds);
+
+        lowest
+    }
+
+    fn mapper(&self, destination: usize, start: usize, length: usize) -> Mapping {
+        Mapping {
+            source: start..(start + length),
+            destination: destination..(destination + length),
+        }
+    }
+
+    fn parse_seed_ranges(&self, seed_ranges: &Vec<usize>) -> Vec<usize> {
+        seed_ranges
+            .par_chunks_exact(2)
+            .flat_map(|chunk| {
+                let start = chunk[0];
+                let end = start + chunk[1];
+                (start..end).into_par_iter()
+            })
+            .collect()
+    }
+
+    fn get_lowest(&self, maps: Vec<&str>, seeds: Vec<usize>) -> u32 {
         let mappings = maps[1..]
             .iter()
             .map(|line| {
@@ -110,11 +108,7 @@ impl Day05 {
             })
             .collect::<Vec<_>>();
 
-        println!("++++++++++++++ {:?}", mappings.len());
-        let parsed_seeds = self.parse_seed_ranges(&seeds);
-        println!("++++++++++++++ {:?}", parsed_seeds.len());
-
-        let final_lowest = parsed_seeds
+        seeds
             .par_iter()
             .map(|&seed| {
                 let mut item = seed;
@@ -125,30 +119,7 @@ impl Day05 {
 
                 item
             })
-            .reduce(|| std::usize::MAX, |a, b| if a < b { a } else { b });
-        final_lowest as u32
-    }
-
-    fn mapper(&self, destination: usize, start: usize, length: usize) -> Mapping {
-        let map = Mapping {
-            source: start..(start + length),
-            destination: destination..(destination + length),
-        };
-
-        map
-    }
-
-    fn parse_seed_ranges(&self, seed_ranges: &Vec<usize>) -> Vec<usize> {
-        let seeds = seed_ranges
-            .par_chunks_exact(2)
-            .flat_map(|chunk| {
-                let start = chunk[0];
-                let end = start + chunk[1];
-                (start..end).into_par_iter()
-            })
-            .collect();
-
-        seeds
+            .reduce(|| std::usize::MAX, |a, b| if a < b { a } else { b }) as u32
     }
 }
 
