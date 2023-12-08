@@ -10,13 +10,13 @@ impl DayO6 {
         Self::default()
     }
 
-    pub fn solution01(&self) -> u32 {
+    pub fn solution01(&self) -> usize {
         let maps = self
             .input
             .lines()
             .map(|line| {
                 line.split_whitespace()
-                    .filter_map(|item| item.parse::<u32>().ok())
+                    .filter_map(|item| item.parse::<usize>().ok())
                     .collect::<Vec<_>>()
             })
             .collect::<Vec<_>>();
@@ -37,17 +37,17 @@ impl DayO6 {
             })
             .product::<usize>();
 
-        result as u32
+        result as usize
     }
 
-    pub fn solution02(&self) -> u32 {
+    pub fn solution02(&self) -> usize {
         let maps = self
             .input
             .lines()
             .map(|line| {
                 let item = line
                     .split_whitespace()
-                    .filter_map(|item| item.parse::<u32>().ok())
+                    .filter_map(|item| item.parse::<usize>().ok())
                     .map(|num| num.to_string())
                     .collect::<Vec<_>>()
                     .join("");
@@ -64,7 +64,7 @@ impl DayO6 {
             })
             .count();
 
-        result as u32
+        result as usize
     }
 }
 

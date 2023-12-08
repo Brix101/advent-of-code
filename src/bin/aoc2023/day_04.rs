@@ -10,7 +10,7 @@ impl Day04 {
         Self::default()
     }
 
-    pub fn solution01(&self) -> u32 {
+    pub fn solution01(&self) -> usize {
         self.records
             .iter()
             .map(|line| {
@@ -27,10 +27,10 @@ impl Day04 {
                     0
                 }
             })
-            .sum::<u32>()
+            .sum::<usize>()
     }
 
-    pub fn solution02(&self) -> u32 {
+    pub fn solution02(&self) -> usize {
         let mut cards = self
             .records
             .iter()
@@ -55,20 +55,20 @@ impl Day04 {
             }
         }
 
-        cards.iter().map(|(_, instances)| instances).sum::<u32>()
+        cards.iter().map(|(_, instances)| instances).sum::<usize>()
     }
 
-    fn get_numbers(&self, line: &str) -> (Vec<u32>, Vec<u32>) {
+    fn get_numbers(&self, line: &str) -> (Vec<usize>, Vec<usize>) {
         let parts: Vec<&str> = line.split(':').collect();
         let scratchcards: Vec<&str> = parts[1].split("|").collect();
         let numbers = (
             scratchcards[0]
                 .split_whitespace()
-                .map(|s| s.parse::<u32>().unwrap())
+                .map(|s| s.parse::<usize>().unwrap())
                 .collect(),
             scratchcards[1]
                 .split_whitespace()
-                .map(|s| s.parse::<u32>().unwrap())
+                .map(|s| s.parse::<usize>().unwrap())
                 .collect(),
         );
 

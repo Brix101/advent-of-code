@@ -31,7 +31,7 @@ impl Day05 {
         Self::default()
     }
 
-    pub fn solution01(&self) -> u32 {
+    pub fn solution01(&self) -> usize {
         let maps = self
             .input
             .split("\n\n")
@@ -50,7 +50,7 @@ impl Day05 {
         lowest
     }
 
-    pub fn solution02(&self) -> u32 {
+    pub fn solution02(&self) -> usize {
         let maps = self
             .input
             .split("\n\n")
@@ -89,7 +89,7 @@ impl Day05 {
             .collect()
     }
 
-    fn get_lowest(&self, maps: Vec<&str>, seeds: Vec<usize>) -> u32 {
+    fn get_lowest(&self, maps: Vec<&str>, seeds: Vec<usize>) -> usize {
         let mappings = maps[1..]
             .iter()
             .map(|line| {
@@ -119,7 +119,7 @@ impl Day05 {
 
                 item
             })
-            .reduce(|| std::usize::MAX, |a, b| if a < b { a } else { b }) as u32
+            .reduce(|| std::usize::MAX, |a, b| if a < b { a } else { b }) as usize
     }
 }
 

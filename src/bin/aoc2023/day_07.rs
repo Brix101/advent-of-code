@@ -23,7 +23,7 @@ impl Day07 {
         Self::default()
     }
 
-    pub fn solution01(&self) -> u32 {
+    pub fn solution01(&self) -> usize {
         use HandType::*;
         let hands = self
             .input
@@ -56,17 +56,17 @@ impl Day07 {
                     .collect_tuple()
                     .unwrap();
                 let hand_score = (hand_type, card_scores);
-                (hand, bid.parse::<u32>().unwrap(), hand_score)
+                (hand, bid.parse::<usize>().unwrap(), hand_score)
             })
             .sorted_by_key(|x| (x.2 .0 as u8, x.2 .1))
             .enumerate()
-            .map(|(index, (_hand, bid, _))| (index as u32 + 1) * bid)
-            .sum::<u32>();
+            .map(|(index, (_hand, bid, _))| (index as usize + 1) * bid)
+            .sum::<usize>();
 
         hands
     }
 
-    pub fn solution02(&self) -> u32 {
+    pub fn solution02(&self) -> usize {
         use HandType::*;
         let hands = self
             .input
@@ -119,19 +119,19 @@ impl Day07 {
                     .unwrap();
                 let hand_score = (hand_type, card_scores);
 
-                (hand, bid.parse::<u32>().unwrap(), hand_score)
+                (hand, bid.parse::<usize>().unwrap(), hand_score)
             })
             .sorted_by_key(|x| (x.2 .0 as u8, x.2 .1))
             .enumerate()
-            .map(|(index, (_hand, bid, _))| (index as u32 + 1) * bid)
-            .sum::<u32>();
+            .map(|(index, (_hand, bid, _))| (index as usize + 1) * bid)
+            .sum::<usize>();
         hands
     }
 }
 
 impl Runner for Day07 {
     fn name(&self) -> (usize, usize) {
-        (2023, 6)
+        (2023, 7)
     }
 
     fn parse(&mut self) {

@@ -12,7 +12,7 @@ impl Day02 {
         Self::default()
     }
 
-    pub fn solution01(&self) -> u32 {
+    pub fn solution01(&self) -> usize {
         let set_limit = HashMap::from([("red", 12), ("green", 13), ("blue", 14)]);
         self.records
             .iter()
@@ -22,13 +22,13 @@ impl Day02 {
                     .strip_prefix("Game")
                     .unwrap_or("0")
                     .trim()
-                    .parse::<u32>()
+                    .parse::<usize>()
                     .expect("should be a valid number");
 
                 let impossible_sets: Vec<_> = parts[1]
                     .split(";")
                     .map(|set| {
-                        let colors: HashMap<String, u32> = set
+                        let colors: HashMap<String, usize> = set
                             .split(',')
                             .map(|part_line| {
                                 let color_parts: Vec<&str> =
@@ -53,15 +53,15 @@ impl Day02 {
                     None
                 }
             })
-            .sum::<u32>()
+            .sum::<usize>()
     }
 
-    pub fn solution02(&self) -> u32 {
+    pub fn solution02(&self) -> usize {
         self.records
             .iter()
             .map(|line| {
                 let parts: Vec<&str> = line.split(':').collect();
-                let mut colors: HashMap<String, u32> = HashMap::new();
+                let mut colors: HashMap<String, usize> = HashMap::new();
 
                 parts[1].split(";").for_each(|set| {
                     set.split(',').for_each(|part_line| {
@@ -83,7 +83,7 @@ impl Day02 {
 
                 result
             })
-            .sum::<u32>()
+            .sum::<usize>()
     }
 }
 

@@ -11,7 +11,7 @@ impl Day01 {
         Self::default()
     }
 
-    pub fn solution01(&self) -> u32 {
+    pub fn solution01(&self) -> usize {
         self.records01
             .iter()
             .map(|line| {
@@ -22,13 +22,13 @@ impl Day01 {
                     Some(num) => format!("{first}{num}"),
                     None => format!("{first}{first}"),
                 }
-                .parse::<u32>()
+                .parse::<usize>()
                 .expect("should be a valid number")
             })
-            .sum::<u32>()
+            .sum::<usize>()
     }
 
-    pub fn solution02(&self) -> u32 {
+    pub fn solution02(&self) -> usize {
         self.records02
             .iter()
             .map(|line| {
@@ -56,10 +56,10 @@ impl Day01 {
                     Some(num) => format!("{first}{num}"),
                     None => format!("{first}{first}"),
                 }
-                .parse::<u32>()
+                .parse::<usize>()
                 .expect("should be a valid number")
             })
-            .sum::<u32>()
+            .sum::<usize>()
     }
 }
 

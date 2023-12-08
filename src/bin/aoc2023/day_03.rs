@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, usize};
 
 use crate::Runner;
 
@@ -20,7 +20,7 @@ impl Day03 {
         Self::default()
     }
 
-    pub fn solution01(&self) -> u32 {
+    pub fn solution01(&self) -> usize {
         self.records
             .iter()
             .enumerate()
@@ -58,11 +58,11 @@ impl Day03 {
                 }
             })
             .flatten()
-            .map(|s| s.parse::<u32>().unwrap_or(0))
+            .map(|s| s.parse::<usize>().unwrap_or(0))
             .sum()
     }
 
-    pub fn solution02(&self) -> u32 {
+    pub fn solution02(&self) -> usize {
         let map = self
             .records
             .iter()
@@ -166,7 +166,7 @@ impl Day03 {
                     .product::<usize>();
             }
         }
-        total.to_string().parse::<u32>().unwrap_or(0)
+        total.to_string().parse::<usize>().unwrap_or(0)
     }
 
     fn check_position(&self, line: &str, pos: usize) -> bool {
